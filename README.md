@@ -16,4 +16,4 @@ You could find wheel package files of dlib for python of different versions on W
 
 ## Contact
 
-Please email me at <2021022249@m.scnu.edu.cn> if you have any inquiries or issues
+Please email me at <2021022249@m.scnu.edu.cn> if you have any inquiries or issues.
