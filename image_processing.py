@@ -118,32 +118,65 @@ def load_images_dev(
     return videos_images, subjects, subjects_videos_code
 
 
-def dlib_face_detect(image, detector="HoG"):
-    if detector == "HoG":
-        # HoG Face Detector
-        face_detector = dlib.get_frontal_face_detector()
-    elif detector == "MMOD":
-        # Convolutional Neural Network – CNN Face Detector in Dlib
-        # the mmod_human_face_detector is rubbish!
-        face_detector = dlib.cnn_face_detection_model_v1(
-            "./__utils__/mmod_human_face_detector.dat"
+def get_square_face(
+    image,
+    face_left,
+    face_top,
+    face_right,
+    face_bottom,
+):
+    frame_height, frame_width, _ = image.shape
+    face_height = face_bottom - face_top
+    face_weight = face_right - face_left
+    if face_weight < face_height:
+        half_difference = (face_height - face_weight) // 2
+        crop_left = (
+            0 if face_left - half_difference < 0 else face_left - half_difference
         )
-    detected_faces = face_detector(image, 1)
-    for face_rect in detected_faces:
-        face_top = face_rect.top()
-        face_bottom = face_rect.bottom()
-        face_left = face_rect.left()
-        face_right = face_rect.right()
-    face = image[face_top:face_bottom, face_left:face_right]
+        crop_right = (
+            frame_width
+            if face_right + half_difference > frame_width
+            else face_right + half_difference
+        )
+        face = image[face_top:face_bottom, crop_left:crop_right]
+    else:
+        # face_height < face_weight
+        half_difference = (face_weight - face_height) // 2
+        crop_top = 0 if face_top - half_difference < 0 else face_top - half_difference
+        crop_bottom = (
+            frame_height
+            if face_bottom + half_difference > frame_height
+            else face_bottom + half_difference
+        )
+        face = image[crop_top:crop_bottom, face_left:face_right]
+    return face
+
+
+def cv2_haar_cascade_face_detect(image):
+    faceCascade = cv2.CascadeClassifier(
+        "./__utils__/haarcascade_frontalface_default.xml"
+    )
+    faces = faceCascade.detectMultiScale(image)
+    for face in faces:
+        x1, y1, w, h = face
+        x2 = x1 + w
+        y2 = y1 + h
+    face = get_square_face(
+        image=image,
+        face_left=x1,
+        face_top=y1,
+        face_right=x2,
+        face_bottom=y2,
+    )
     return face
 
 
 def cv2_dnn_face_detect(image):
     # use DNN Face Detector in OpenCV
-    modelFile = "./__utils__/res10_300x300_ssd_iter_140000_fp16.caffemodel"
-    configFile = "./__utils__/deploy.prototxt"
-    net = cv2.dnn.readNetFromCaffe(configFile, modelFile)
-    frameHeight, frameWidth, _ = image.shape
+    model_file = "./__utils__/res10_300x300_ssd_iter_140000_fp16.caffemodel"
+    config_file = "./__utils__/deploy.prototxt"
+    net = cv2.dnn.readNetFromCaffe(config_file, model_file)
+    frame_height, frame_width, _ = image.shape
     conf_threshold = 0.5
     blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300), [104, 117, 123], False, False)
     net.setInput(blob)
@@ -151,17 +184,58 @@ def cv2_dnn_face_detect(image):
     for i in range(detections.shape[2]):
         confidence = detections[0, 0, i, 2]
         if confidence > conf_threshold:
-            x1 = int(detections[0, 0, i, 3] * frameWidth)
-            y1 = int(detections[0, 0, i, 4] * frameHeight)
-            x2 = int(detections[0, 0, i, 5] * frameWidth)
-            y2 = int(detections[0, 0, i, 6] * frameHeight)
-    # face = image[y1:y2, x1:x2]
-    half_difference = ((y2 - y1) - (x2 - x1)) // 2
-    crop_left = 0 if x1 - half_difference < 0 else x1 - half_difference
-    crop_right = (
-        frameWidth if x2 + half_difference > frameWidth else x2 + half_difference
+            x1 = int(detections[0, 0, i, 3] * frame_width)
+            y1 = int(detections[0, 0, i, 4] * frame_height)
+            x2 = int(detections[0, 0, i, 5] * frame_width)
+            y2 = int(detections[0, 0, i, 6] * frame_height)
+    # print(f"cv2 dnn height = {y2-y1}, weight = {x2-x1}")
+    face = get_square_face(
+        image=image,
+        face_left=x1,
+        face_top=y1,
+        face_right=x2,
+        face_bottom=y2,
     )
-    face = image[y1:y2, crop_left:crop_right]
+    return face
+
+
+def dlib_hog_face_detect(image):
+    face_detector = dlib.get_frontal_face_detector()
+    detected_faces = face_detector(image, 1)
+    for face_rect in detected_faces:
+        x1 = face_rect.left()
+        y1 = face_rect.top()
+        x2 = face_rect.right()
+        y2 = face_rect.bottom()
+    face = get_square_face(
+        image=image,
+        face_left=x1,
+        face_top=y1,
+        face_right=x2,
+        face_bottom=y2,
+    )
+    return face
+
+
+def dlib_mmod_face_detect(image):
+    # Convolutional Neural Network – CNN Face Detector in Dlib
+    # the mmod_human_face_detector is rubbish!
+    face_detector = dlib.cnn_face_detection_model_v1(
+        "./__utils__/mmod_human_face_detector.dat"
+    )
+    detected_faces = face_detector(image, 1)
+    for detected_face in detected_faces:
+        x1 = detected_face.rect.left()
+        y1 = detected_face.rect.top()
+        x2 = detected_face.rect.right()
+        y2 = detected_face.rect.bottom()
+    face = get_square_face(
+        image=image,
+        face_left=x1,
+        face_top=y1,
+        face_right=x2,
+        face_bottom=y2,
+    )
     return face
 
 
@@ -209,9 +283,6 @@ def crop_images_dev(dataset_dir):
                     image_filename = subject_video_image_path.name
                     image = cv2.imread(str(subject_video_image_path))
 
-                    # use face detector in Dlib
-                    # face = dlib_face_detect(image)
-
                     # use DNN Face Detector in OpenCV
                     face = cv2_dnn_face_detect(image)
 
@@ -250,9 +321,6 @@ def crop_images_dev(dataset_dir):
                 # Get img num Ex 0001,0002,...,2021
                 image_filename = subject_video_image_path.name
                 image = cv2.imread(str(subject_video_image_path))
-
-                # use face detector in Dlib
-                # face = dlib_face_detect(image)
 
                 # use DNN Face Detector in OpenCV
                 face = cv2_dnn_face_detect(image)

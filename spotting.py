@@ -5,7 +5,7 @@ from scipy.signal import find_peaks, savgol_filter
 import time
 
 plt.style.use("ggplot")
-backend_inline.set_matplotlib_formats("svg")
+backend_inline.set_matplotlib_formats("png")
 
 
 def spot(
