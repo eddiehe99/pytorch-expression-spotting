@@ -1,2 +1,4 @@
 .vscode/*
 __pycache__/*
+__utils__/__pycache__/*
+models/__pycache__/*
