@@ -4,8 +4,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from sklearn.model_selection import LeaveOneGroupOut
 import gc
-import functions
-import torch_functions
+from __utils__ import functions
+from __utils__ import torch_functions
 import models
 
 

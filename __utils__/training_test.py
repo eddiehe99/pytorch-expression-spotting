@@ -3,8 +3,8 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import gc
-import functions
-import torch_functions
+from __utils__ import functions
+from __utils__ import torch_functions
 import models
 
 

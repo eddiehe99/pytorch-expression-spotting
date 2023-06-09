@@ -1,5 +1,6 @@
 from models.soft_net import SOFTNet
-from models.soft_net_cbam import SOFTNetCBAM
+
+# from models.soft_net_cbam import SOFTNetCBAM
 from models.vision_transformer import ViT
 from models.sl_vision_transformer import SLViT
 from models.swin_transformer import SwinTransformer
@@ -11,8 +12,8 @@ from models.sl_swin_transformer import SLSwinTransformer
 def load_model(model_name):
     if model_name == "SOFTNet":
         model = SOFTNet()
-    elif model_name == "SOFTNetCBAM":
-        model = SOFTNetCBAM()
+    # elif model_name == "SOFTNetCBAM":
+    #     model = SOFTNetCBAM()
     elif model_name == "ViT-B":
         model = ViT(
             img_size=42,

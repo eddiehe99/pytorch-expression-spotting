@@ -3,8 +3,8 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import gc
-import functions
-import torch_functions
+from __utils__ import functions
+from __utils__ import torch_functions
 import models
 
 print("torch Version: ", torch.__version__)
@@ -56,7 +56,7 @@ def train_and_test(
 
             # Data augmentation to the micro-expression samples only
             if expression_type == "me":
-                X_train, y_train = functions.augment_data(X_train, y_train,image_size)
+                X_train, y_train = functions.augment_data(X_train, y_train, image_size)
 
             # training normalization
             # cv2.normalize works better than tf.image

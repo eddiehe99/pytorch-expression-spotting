@@ -83,7 +83,7 @@ def extract_features_video_images(video_images, image_size, k, **kwargs):
 def pre_process_video_images(
     video_images, image_size, k, video_images_features, **kwargs
 ):
-    predictor_model = "__utils__/shape_predictor_68_face_landmarks.dat"
+    predictor_model = "shape_predictor_68_face_landmarks.dat"
     face_detector = dlib.get_frontal_face_detector()
     face_pose_predictor = dlib.shape_predictor(predictor_model)
     resampled_video_images_features = []
@@ -485,7 +485,7 @@ def extract_features(clean_videos_images, k, image_size=128):
 
 
 def pre_process(clean_videos_images, clean_videos_images_features, k, image_size=128):
-    predictor_model = "__utils__/shape_predictor_68_face_landmarks.dat"
+    predictor_model = "shape_predictor_68_face_landmarks.dat"
     face_detector = dlib.get_frontal_face_detector()
     face_pose_predictor = dlib.shape_predictor(predictor_model)
     resampled_clean_videos_images_features = []
