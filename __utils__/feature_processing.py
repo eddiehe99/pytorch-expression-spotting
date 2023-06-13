@@ -80,7 +80,7 @@ def extract_features_video_images(video_images, image_size, k, **kwargs):
     return video_images_features
 
 
-def pre_process_video_images(
+def preprocess_video_images(
     video_images, image_size, k, video_images_features, **kwargs
 ):
     predictor_model = "shape_predictor_68_face_landmarks.dat"
@@ -99,7 +99,7 @@ def pre_process_video_images(
         detect = face_detector(reference_image, 1)
         index_shift = 0
         print(
-            f"pre-processing video: {video_name},",
+            f"preprocessing video: {video_name},",
             f"image: {video_image_index},",
             end="\r",
         )
@@ -130,7 +130,7 @@ def pre_process_video_images(
             detect = face_detector(reference_image, 1)
             index_shift += 1
             print(
-                f"pre-processing clean_video: {video_name},",
+                f"preprocessing clean_video: {video_name},",
                 f"image: {video_image_index},",
                 f"index_shift: {index_shift}",
                 end="\r",
@@ -268,7 +268,7 @@ def pre_process_video_images(
     return resampled_video_images_features
 
 
-def extract_features_and_pre_process(
+def extract_features_and_preprocess(
     clean_videos_images,
     k,
     expression_type,
@@ -311,8 +311,8 @@ def extract_features_and_pre_process(
             #     video_name,
             # )
 
-            """pre-process"""
-            resampled_clean_video_images_features = pre_process_video_images(
+            """preprocess"""
+            resampled_clean_video_images_features = preprocess_video_images(
                 video_images=clean_video_images,
                 image_size=image_size,
                 k=k,
@@ -320,7 +320,7 @@ def extract_features_and_pre_process(
                 **kwargs,
             )
             # print(
-            #     "\nFinish pre-process video:",
+            #     "\nFinish preprocess video:",
             #     video_name,
             # )
 
@@ -351,7 +351,7 @@ def extract_features_and_pre_process(
         del resampled_clean_subject_videos_images_features
         gc.collect()
 
-    print("All features extracted and pre-processed.")
+    print("All features extracted and preprocessed.")
 
 
 def extract_features_and_pre_process_test(
@@ -383,17 +383,15 @@ def extract_features_and_pre_process_test(
             clean_video_images_index,
         )
 
-        """pre-process"""
-        resampled_clean_video_images_features = pre_process_video_images(
+        """preprocess"""
+        resampled_clean_video_images_features = preprocess_video_images(
             video_images=clean_video_images,
             image_size=image_size,
             k=k,
             video_images_features=clean_video_images_features,
             **kwargs,
         )
-        print(
-            "\nFinish pre-process clean_video_images_index ", clean_video_images_index
-        )
+        print("\nFinish preprocess clean_video_images_index ", clean_video_images_index)
 
         """save pkl files"""
         (
@@ -417,7 +415,7 @@ def extract_features_and_pre_process_test(
             _pickle.dump(resampled_clean_video_images_features, pkl_file)
             pkl_file.close()
 
-    print("All features extracted and pre-processed.")
+    print("All features extracted and preprocessed.")
 
 
 def extract_features(clean_videos_images, k, image_size=128):
@@ -484,7 +482,7 @@ def extract_features(clean_videos_images, k, image_size=128):
     return clean_videos_images_features
 
 
-def pre_process(clean_videos_images, clean_videos_images_features, k, image_size=128):
+def preprocess(clean_videos_images, clean_videos_images_features, k, image_size=128):
     predictor_model = "shape_predictor_68_face_landmarks.dat"
     face_detector = dlib.get_frontal_face_detector()
     face_pose_predictor = dlib.shape_predictor(predictor_model)
@@ -502,7 +500,7 @@ def pre_process(clean_videos_images, clean_videos_images_features, k, image_size
             detect = face_detector(reference_image, 1)
             index_shift = 0
             print(
-                f"pre-processing clean_video {clean_video_images_index},",
+                f"preprocessing clean_video {clean_video_images_index},",
                 f"image {clean_video_image_index}",
                 end="\r",
             )
@@ -539,7 +537,7 @@ def pre_process(clean_videos_images, clean_videos_images_features, k, image_size
                 detect = face_detector(reference_image, 1)
                 index_shift += 1
                 print(
-                    f"pre-processing clean_video {clean_video_images_index},",
+                    f"preprocessing clean_video {clean_video_images_index},",
                     f"image {clean_video_image_index},",
                     f"index_shift {index_shift}",
                     end="\r",
@@ -694,8 +692,6 @@ def pre_process(clean_videos_images, clean_videos_images_features, k, image_size
         resampled_clean_videos_images_features.append(
             resampled_clean_video_images_features
         )
-        print(
-            "\nFinish pre-process clean_video_images_index ", clean_video_images_index
-        )
-    print("All pre-process done.")
+        print("\nFinish preprocess clean_video_images_index ", clean_video_images_index)
+    print("All preprocessing done.")
     return resampled_clean_videos_images_features
