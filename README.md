@@ -39,15 +39,29 @@
 
 You could find wheel package files of dlib for python of different versions on Windows_x64 at <https://github.com/eddiehe99/dlib-whl>.
 
-### Mean Average Precision for Evaluation
+### Mean Average Precision for Evaluation (Official)
 
 <https://github.com/bes-dev/mean_average_precision>
+
+### Survey about Articles and Codes (Official)
+
+<https://github.com/pakchoi-php/halo>
 
 ---
 
 ## Acknowledgement
 
+### SOFTNet (Official)
+
 Deep appreciation to Liong et al. for sharing their code at <https://github.com/genbing99/SoftNet-SpotME>.
+
+### Vision Transformer for Small-Size Datasets (Official)
+
+<https://github.com/aanna0701/SPT_LSA_ViT>
+
+### Tutorials (in Chinese)
+
+Deep appreciation to [WeZhe](https://github.com/WZMIAOMIAO) for his tutorials about deep learning for image processing and his code at <https://github.com/WZMIAOMIAO/deep-learning-for-image-processing>.
 
 ---
 
