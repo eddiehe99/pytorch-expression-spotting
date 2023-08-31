@@ -5,7 +5,7 @@ from scipy.signal import find_peaks, savgol_filter
 import time
 
 plt.style.use("ggplot")
-backend_inline.set_matplotlib_formats("png")
+backend_inline.set_matplotlib_formats("svg")
 
 
 def spot(
@@ -84,48 +84,49 @@ def spot(
         Offset = Onset + 2k
         [Onset, (k - 1) frames, Apex, (k - 1) frames, Offset]
         Hence, [x : x + 2 * k] means [Onset, (k - 1) frames, Apex, (k - 1) frames]
-        and the legacy aggregated scores omit the last element.
+        and the legacy smoothed scores omit the last element.
         As there are (k - 1) frames on the right of the Apex be considered, not k frames.
         But it does not matter, omitting the last element does not affect the results.
         """
-        # # Score aggregation
-        # legacy_aggregated_scores = scores.copy()
-        # for x in range(len(scores) - 2 * k):
-        #     legacy_aggregated_scores[x + k] = scores[x : x + 2 * k].mean()
-        # legacy_aggregated_scores = legacy_aggregated_scores[k:-k]
 
-        # Fast score aggregation
-        aggregated_scores = np.lib.stride_tricks.sliding_window_view(scores, 2 * k)
-        # aggregated_scores = aggregated_scores[:-1]
-        aggregated_scores = np.mean(aggregated_scores, axis=-1)
+        # # Score smoothing
+        # legacy_smoothed_scores = scores.copy()
+        # for x in range(len(scores) - 2 * k):
+        #     legacy_smoothed_scores[x + k] = scores[x : x + 2 * k].mean()
+        # legacy_smoothed_scores = legacy_smoothed_scores[k:-k]
+
+        # Fast score smoothing
+        smoothed_scores = np.lib.stride_tricks.sliding_window_view(scores, 2 * k)
+        # smoothed_scores = smoothed_scores[:-1]
+        smoothed_scores = np.mean(smoothed_scores, axis=-1)
 
         """
         Divided by 1 / (2k + 1) 
         """
-        # # Score aggregation
-        # legacy_aggregated_scores = scores.copy()
+        # # Score smoothing
+        # legacy_smoothed_scores = scores.copy()
         # for x in range(len(scores) - 2 * k):
-        #     legacy_aggregated_scores[x + k] = scores[x : x + 2 * k + 1].mean()
-        # legacy_aggregated_scores = legacy_aggregated_scores[k:-k]
+        #     legacy_smoothed_scores[x + k] = scores[x : x + 2 * k + 1].mean()
+        # legacy_smoothed_scores = legacy_smoothed_scores[k:-k]
 
-        # # Fast score aggregation
-        # aggregated_scores = np.lib.stride_tricks.sliding_window_view(scores, 2 * k + 1)
-        # aggregated_scores = np.mean(aggregated_scores, axis=-1)
+        # # Fast score smoothing
+        # smoothed_scores = np.lib.stride_tricks.sliding_window_view(scores, 2 * k + 1)
+        # smoothed_scores = np.mean(smoothed_scores, axis=-1)
 
         # # More filtering
-        # aggregated_scores = savgol_filter(aggregated_scores, 6, 2, mode="nearest")
-        # aggregated_scores = np.convolve(
-        #     aggregated_scores,
+        # smoothed_scores = savgol_filter(smoothed_scores, 6, 2, mode="nearest")
+        # smoothed_scores = np.convolve(
+        #     smoothed_scores,
         #     (np.ones(2) / 2).flatten(),
         #     mode="valid",
         # )
 
         # Moilanen threshold technique
-        threshold = aggregated_scores.mean() + p * (
-            max(aggregated_scores) - aggregated_scores.mean()
+        threshold = smoothed_scores.mean() + p * (
+            max(smoothed_scores) - smoothed_scores.mean()
         )
         peaks, _ = find_peaks(
-            aggregated_scores, height=threshold, distance=find_peaks_distance
+            smoothed_scores, height=threshold, distance=find_peaks_distance
         )
 
         # parameters of mean_average_precision
@@ -170,18 +171,18 @@ def spot(
 
         if show_plot_or_not is True:
             # Note for some video the ground truth samples is below frame index 0
-            # due to the effect of aggregation, but no impact to the evaluation
+            # due to the effect of smoothing, but no impact to the evaluation
             plt.figure(figsize=(11, 4))
-            frames = range(k, len(aggregated_scores) + k)
+            frames = range(k, len(smoothed_scores) + k)
             # plt.plot(scores, color="tab:gray", label="scores")
             plt.plot(
                 frames,
-                aggregated_scores,
+                smoothed_scores,
                 color="tab:blue",
-                label="aggregated scores",
+                label="smoothed scores",
             )
             # plt.plot(
-            #     aggregated_scores_copy, color="tab:blue", label="aggregated scores"
+            #     smoothed_scores_copy, color="tab:blue", label="smoothed scores"
             # )
             plt.axhline(y=threshold, color="tab:green", label="threshold (T)")
             plt.xlabel("Frame")
@@ -253,24 +254,24 @@ def spot_test(preds, k, p, test_videos_name, show_plot_or_not=True):
         print(f"test video {index+1}/{len(preds)} is in process.")
         test_video_preds = []
         scores = np.array(pred).flatten()
-        aggregated_scores = scores.copy()
+        smoothed_scores = scores.copy()
 
-        # Score aggregation
+        # Score smoothing
         for x in range(len(scores[k:-k])):
-            aggregated_scores[x + k] = scores[x : x + 2 * k].mean()
-        aggregated_scores = aggregated_scores[k:-k]
-        # aggregated_scores = savgol_filter(aggregated_scores, 2 * k, k, mode="nearest")
-        # aggregated_scores = np.convolve(
-        #     aggregated_scores.flatten(),
+            smoothed_scores[x + k] = scores[x : x + 2 * k].mean()
+        smoothed_scores = smoothed_scores[k:-k]
+        # smoothed_scores = savgol_filter(smoothed_scores, 2 * k, k, mode="nearest")
+        # smoothed_scores = np.convolve(
+        #     smoothed_scores.flatten(),
         #     (np.ones(2 * k) / 2 * k).flatten(),
         #     mode="valid",
         # )
 
         # Moilanen threshold technique
-        threshold = aggregated_scores.mean() + p * (
-            max(aggregated_scores) - aggregated_scores.mean()
+        threshold = smoothed_scores.mean() + p * (
+            max(smoothed_scores) - smoothed_scores.mean()
         )
-        peaks, _ = find_peaks(aggregated_scores, height=threshold, distance=k)
+        peaks, _ = find_peaks(smoothed_scores, height=threshold, distance=k)
 
         if len(peaks) != 0:
             for peak in peaks:
@@ -284,13 +285,13 @@ def spot_test(preds, k, p, test_videos_name, show_plot_or_not=True):
 
         # Plot the result to see the peaks
         # Note for some video the ground truth samples is below frame index 0
-        # due to the effect of aggregation, but no impact to the evaluation
+        # due to the effect of smoothing, but no impact to the evaluation
         if show_plot_or_not is True:
-            # frames = range(len(aggregated_scores))
+            # frames = range(len(smoothed_scores))
             plt.figure(figsize=(11, 4))
             # plt.plot(frames, scores[k:-k], label="scores")
-            # plt.plot(frames, aggregated_scores, label="aggregated scores")
-            plt.plot(aggregated_scores, color="tab:blue", label="aggregated scores")
+            # plt.plot(frames, smoothed_scores, label="smoothed scores")
+            plt.plot(smoothed_scores, color="tab:blue", label="smoothed scores")
             for peak in peaks:
                 plt.axvline(
                     # the peak is already aligned above
