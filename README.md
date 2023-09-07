@@ -27,6 +27,10 @@
 
 > Yap, C.H.; Yap, M.H.; Davison, A.K.; Kendrick, C.; Li, J.; Wang, S.; Cunningham, R. 3D-CNN for Facial Micro- and Macro-Expression Spotting on Long Video Sequences Using Temporal Oriented Reference Frame. arXiv e-prints 2021, arXiv:2105.06340, doi:<https://doi.org/10.48550/arXiv.2105.06340>.
 
+### WeChat Article in Chinese
+
+[华南师范大学：一种在小数据量的表情数据集上基于Transformer的表情检测方法 | MDPI Electronics](https://mp.weixin.qq.com/s/h1dyEMz9fG7a4Ynos5R8Og)
+
 ---
 
 ## Related Repositories
