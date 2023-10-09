@@ -69,6 +69,12 @@ Deep appreciation to [WeZhe](https://github.com/WZMIAOMIAO) for his tutorials ab
 
 ---
 
+## PS
+
+The code is formatted by `black`.
+
+---
+
 ## Contact
 
 Please email me at <2021022249@m.scnu.edu.cn> if you have any inquiries or issues.
