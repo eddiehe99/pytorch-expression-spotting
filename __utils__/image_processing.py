@@ -284,7 +284,8 @@ def crop_images(dataset_dir):
                     image = cv2.imread(str(subject_video_image_path))
 
                     # use DNN Face Detector in OpenCV
-                    face = cv2_dnn_face_detect(image)
+                    # face = cv2_dnn_face_detect(image)
+                    face = cv2_haar_cascade_face_detect(image)
 
                     # resize
                     # face = cv2.resize(face, (128, 128))
